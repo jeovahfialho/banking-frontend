@@ -6,11 +6,8 @@ import TransactionForm from '../components/TransactionForm';
 import TransactionHistory from '../components/TransactionHistory';
 import '../styles/DashboardPage.css';
 
-/**
- * Página principal do dashboard
- */
 const DashboardPage = () => {
-  // Obter contexto de autenticação e navegação
+  // Context e navegação
   const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -21,15 +18,16 @@ const DashboardPage = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [transactions, setTransactions] = useState([]);
+  
+  // Estado para controle das abas
+  const [activeTab, setActiveTab] = useState('operations');
 
   // Carregar saldo inicial
   useEffect(() => {
     fetchBalance();
   }, [activeAccount]);
 
-  /**
-   * Buscar saldo da conta atual
-   */
+  // Buscar saldo da conta atual
   const fetchBalance = async () => {
     try {
       setLoading(true);
@@ -51,27 +49,18 @@ const DashboardPage = () => {
     }
   };
 
-  /**
-   * Manipulador de alteração de conta
-   */
+  // Manipulador de alteração de conta
   const handleAccountChange = (e) => {
     setActiveAccount(e.target.value);
   };
 
-  /**
-   * Manipulador de logout
-   */
+  // Manipulador de logout
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
-  /**
-   * Manipulador de transações
-   * @param {string} type - Tipo de transação (deposit, withdraw, transfer)
-   * @param {string} amount - Valor da transação
-   * @param {string} destination - Conta de destino (para transferências)
-   */
+  // Manipulador de transações
   const handleTransaction = async (type, amount, destination = null) => {
     setLoading(true);
     setError('');
@@ -140,9 +129,7 @@ const DashboardPage = () => {
     }
   };
 
-  /**
-   * Manipulador de reset do sistema
-   */
+  // Manipulador de reset do sistema
   const handleReset = async () => {
     // Confirmação antes de resetar
     if (!window.confirm('Tem certeza que deseja resetar o sistema? Todas as contas serão excluídas.')) {
@@ -168,70 +155,124 @@ const DashboardPage = () => {
 
   return (
     <div className="dashboard-container">
+      {/* Header com logo e botão de logout */}
       <header className="dashboard-header">
-        <h1>Sistema Bancário</h1>
+        <div className="brand">
+          <div className="bank-icon">🏦</div>
+          <h1>Sistema Bancário</h1>
+        </div>
         <button onClick={handleLogout} className="logout-button">
-          Sair
+          <span className="logout-icon">👤</span>
+          <span>Sair</span>
         </button>
       </header>
 
       <div className="dashboard-content">
-        <div className="account-section">
-          <div className="account-selector">
-            <label htmlFor="account-id">Número da Conta:</label>
-            <input
-              id="account-id"
-              type="text"
-              value={activeAccount}
-              onChange={handleAccountChange}
-            />
-            <button 
-              onClick={fetchBalance}
-              disabled={loading}
-              className="refresh-button"
-            >
-              Atualizar
-            </button>
+        {/* Seção de informações da conta - Sempre visível */}
+        <div className="account-card">
+          <div className="account-header">
+            <h2>Informações da Conta</h2>
+            <div className="account-selector">
+              <label htmlFor="account-id">Conta:</label>
+              <input
+                id="account-id"
+                type="text"
+                value={activeAccount}
+                onChange={handleAccountChange}
+              />
+              <button 
+                onClick={fetchBalance}
+                disabled={loading}
+                className="refresh-button"
+              >
+                🔄
+              </button>
+            </div>
           </div>
-
+          
           <div className="balance-display">
-            <h3>Saldo da Conta</h3>
+            <div className="balance-label">Saldo Atual</div>
             <div className="balance-amount">
-              {loading ? 'Carregando...' : `R$ ${balance}`}
+              {loading ? 'Carregando...' : `R$ ${balance !== null ? balance : 0}`}
             </div>
           </div>
         </div>
-
-        <div className="transaction-section">
-          <h3>Realizar Operação</h3>
-          <TransactionForm 
-            onSubmit={handleTransaction}
-            isLoading={loading}
-          />
+        
+        {/* Navegação por abas */}
+        <div className="tabs-container">
+          <div className="tabs-header">
+            <button 
+              className={`tab-button ${activeTab === 'operations' ? 'active' : ''}`}
+              onClick={() => setActiveTab('operations')}
+            >
+              Operações
+            </button>
+            <button 
+              className={`tab-button ${activeTab === 'history' ? 'active' : ''}`}
+              onClick={() => setActiveTab('history')}
+            >
+              Histórico
+            </button>
+            <button 
+              className={`tab-button ${activeTab === 'admin' ? 'active' : ''}`}
+              onClick={() => setActiveTab('admin')}
+            >
+              Administração
+            </button>
+          </div>
           
-          {error && <div className="error-message">{error}</div>}
-          {success && <div className="success-message">{success}</div>}
-        </div>
-
-        <div className="admin-section">
-          <h3>Administração</h3>
-          <button 
-            onClick={handleReset} 
-            className="reset-button"
-            disabled={loading}
-          >
-            Resetar Sistema
-          </button>
-        </div>
-
-        <div className="history-section">
-          <h3>Histórico de Transações</h3>
-          <TransactionHistory 
-            transactions={transactions}
-            accountId={activeAccount}
-          />
+          <div className="tab-content">
+            {/* Aba de Operações */}
+            {activeTab === 'operations' && (
+              <div className="tab-panel operations-panel">
+                <h3>Nova Transação</h3>
+                <TransactionForm 
+                  onSubmit={handleTransaction}
+                  isLoading={loading}
+                />
+                
+                {error && <div className="error-message">{error}</div>}
+                {success && <div className="success-message">{success}</div>}
+              </div>
+            )}
+            
+            {/* Aba de Histórico */}
+            {activeTab === 'history' && (
+              <div className="tab-panel history-panel">
+                <h3>Histórico de Transações</h3>
+                <TransactionHistory 
+                  transactions={transactions}
+                  accountId={activeAccount}
+                />
+              </div>
+            )}
+            
+            {/* Aba de Administração */}
+            {activeTab === 'admin' && (
+              <div className="tab-panel admin-panel">
+                <h3>Administração do Sistema</h3>
+                <div className="admin-actions">
+                  <div className="admin-action-card">
+                    <h4>Reset do Sistema</h4>
+                    <p>Esta operação irá apagar todas as contas e transações do sistema.</p>
+                    <button 
+                      onClick={handleReset} 
+                      className="reset-button"
+                      disabled={loading}
+                    >
+                      Resetar Sistema
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
+      
+      <footer className="dashboard-footer">
+        <p>&copy; 2025 Sistema Bancário - Todos os direitos reservados</p>
+      </footer>
     </div>
   );
 };
