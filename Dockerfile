@@ -7,9 +7,6 @@ WORKDIR /app
 # Copiar arquivos de dependências
 COPY package*.json ./
 
-# Instalar dependências
-RUN npm ci
-
 # Copiar arquivos do projeto
 COPY . .
 
