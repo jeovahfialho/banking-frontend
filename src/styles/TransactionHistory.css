@@ -1,0 +1,58 @@
+/* Estilos para o histórico de transações */
+.transaction-history {
+    margin-top: 16px;
+    overflow-x: auto;
+  }
+  
+  .transaction-history table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .transaction-history th,
+  .transaction-history td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .transaction-history th {
+    background-color: #f5f5f5;
+    font-weight: 600;
+  }
+  
+  .transaction-history tr:hover {
+    background-color: #f8f8f8;
+  }
+  
+  /* Valores positivos e negativos */
+  .amount-positive {
+    color: #28a745;
+    font-weight: 500;
+  }
+  
+  .amount-negative {
+    color: #dc3545;
+    font-weight: 500;
+  }
+  
+  /* Mensagem de nenhuma transação */
+  .no-transactions {
+    text-align: center;
+    padding: 24px;
+    color: #666;
+    font-style: italic;
+  }
+  
+  /* Responsividade para tabelas em telas pequenas */
+  @media (max-width: 600px) {
+    .transaction-history {
+      margin-top: 16px;
+    }
+    
+    .transaction-history table {
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+  }
